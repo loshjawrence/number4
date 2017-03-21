@@ -28,10 +28,10 @@ Color3f MicrofacetBRDF::Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f
     Vector3f wh = distribution->Sample_wh(wo,xi);
     //reflection = -wo + 2 * dot(n, wo), where wh is n here and reflection is wi
     *wi = glm::reflect(-wo,wh);//2.f*glm::dot(wo,wh)*wh - wo;
-    *wi = glm::normalize(*wi);
-    if(!SameHemisphere(wo,*wi)) {
-        return Color3f(0.f);
-    }
+//    *wi = glm::normalize(*wi);
+//    if(!SameHemisphere(wo,*wi)) {
+//        return Color3f(0.f);
+//    }
     *pdf = Pdf(wo,*wi);
     return f(wo,*wi);
 }
@@ -39,9 +39,9 @@ Color3f MicrofacetBRDF::Sample_f(const Vector3f &wo, Vector3f *wi, const Point2f
 float MicrofacetBRDF::Pdf(const Vector3f &wo, const Vector3f &wi) const
 {
     //TODO
-    if(!SameHemisphere(wo, wi)) {
-        return 0.f;
-    }
+//    if(!SameHemisphere(wo, wi)) {
+//        return 0.f;
+//    }
     Vector3f wh = glm::normalize(wi + wo);
     return distribution->Pdf(wo,wh) / (4.f * glm::dot(wo,wh));
 }

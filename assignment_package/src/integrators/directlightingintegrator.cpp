@@ -39,7 +39,7 @@ Color3f DirectLightingIntegrator::Li(const Ray &ray, const Scene &scene, std::sh
                 sampledlightenergy = Color3f(0.f);
             }
 
-            Color3f bsdfresult = isect.bsdf->Sample_f(woW,&wiW,xi,&pdf);
+            Color3f bsdfresult = isect.bsdf->f(woW,wiW);
             float absdot = std::fabs(glm::dot(wiW,isect.normalGeometric));
 
             color = emittedlightenergy + bsdfresult * sampledlightenergy * absdot;

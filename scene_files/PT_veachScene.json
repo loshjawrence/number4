@@ -4,8 +4,8 @@
     "frameNumber" : 0,
     "scene" : {
       "camera" : {
-        "target" : [0, -12, 20],
-        "eye" : [0, 48, 220],
+        "target" : [0, -1.5, 2.5],
+        "eye" : [0, 6, 27.5],
         "worldUp" : [0, 1, 0],
         "fov" : 16,
         "width" : 768,
@@ -14,12 +14,32 @@
       "primitives" : [
         {
           "shape" : "SquarePlane",
+          "name" : "Floor",
+          "material" : "matteWhite",
+          "transform" : {
+            "translate" : [0, -5, 0],
+            "rotate" : [-90, 0, 0],
+            "scale" : [30, 30, 1]
+          }
+        },
+        {
+          "shape" : "SquarePlane",
+          "name" : "Back Wall",
+          "material" : "matteWhite",
+          "transform" : {
+            "translate" : [0,10,-15],
+            "rotate" : [0,0,0],
+            "scale" : [30, 30, 1]
+          }
+        },
+        {
+          "shape" : "SquarePlane",
           "name" : "Glossy Plane Rough",
           "material" : "glossyRough",
           "transform" : {
-            "translate" : [0,-31.2,28.4],
+            "translate" : [0,-3.9,3.55],
             "rotate" : [-78,0,0],
-            "scale" : [80, 8, 1]
+            "scale" : [10, 1, 1]
           }
         },
         {
@@ -27,9 +47,9 @@
           "name" : "Glossy Plane Medium",
           "material" : "glossyMedium",
           "transform" : {
-            "translate" : [0,-28.672,17.848],
+            "translate" : [0,-3.584,2.231],
             "rotate" : [-73,0,0],
-            "scale" : [80, 8, 1]
+            "scale" : [10, 1, 1]
           }
         },
         {
@@ -37,9 +57,9 @@
           "name" : "Glossy Plane Smooth",
           "material" : "glossySmooth",
           "transform" : {
-            "translate" : [0,-24.496,7.368],
+            "translate" : [0,-3.062,0.921],
             "rotate" : [-63,0,0],
-            "scale" : [80, 8, 1]
+            "scale" : [10, 1, 1]
           }
         },
         {
@@ -47,9 +67,9 @@
           "name" : "Glossy Plane SuperSmooth",
           "material" : "glossySuper",
           "transform" : {
-            "translate" : [0,-19.16, -1.08],
+            "translate" : [0,-2.395, -0.135],
             "rotate" : [-51.5,0,0],
-            "scale" : [80, 8, 1]
+            "scale" : [10, 1, 1]
           }
         }
       ],
@@ -59,11 +79,11 @@
           "name" : "Light Small",
           "type" : "DiffuseAreaLight",
           "lightColor" : [1,1,1],
-          "intensity" : 96,
+          "intensity" : 3,
           "transform" : {
-            "translate" : [-28,0,0],
+            "translate" : [-3.5,0,0],
             "rotate" : [0,0,0],
-            "scale" : [1, 1, 1]
+            "scale" : [0.05, 0.05, 0.05]
           },
           "isDelta" : false,
           "twoSided" : false
@@ -73,11 +93,11 @@
           "name" : "Light Medium",
           "type" : "DiffuseAreaLight",
           "lightColor" : [1,1,1],
-          "intensity" : 48,
+          "intensity" : 3,
           "transform" : {
             "translate" : [0,0,0],
             "rotate" : [0,0,0],
-            "scale" : [4, 4, 4]
+            "scale" : [0.5, 0.5, 0.5]
           },
           "isDelta" : false,
           "twoSided" : false
@@ -87,11 +107,11 @@
           "name" : "Light Large",
           "type" : "DiffuseAreaLight",
           "lightColor" : [1,1,1],
-          "intensity" : 48,
+          "intensity" : 3,
           "transform" : {
-            "translate" : [28,0,0],
+            "translate" : [3.5,0,0],
             "rotate" : [0,0,0],
-            "scale" : [8, 8, 8]
+            "scale" : [1, 1, 1]
           },
           "isDelta" : false,
           "twoSided" : false
