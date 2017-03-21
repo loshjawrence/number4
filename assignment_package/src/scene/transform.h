@@ -8,6 +8,7 @@ public:
     Transform(const glm::vec3 &t, const glm::vec3 &r, const glm::vec3 &s);
 
     void SetMatrices();
+    void SetWorldTransformMat(const glm::mat4 &m);
 
     const glm::mat4 &T() const;
     const glm::mat3 T3() const;

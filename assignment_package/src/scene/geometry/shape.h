@@ -34,8 +34,7 @@ public:
 
     // Invokes the Sample below and converts the PDF from an area measure
     // to a solid angle measure
-    virtual Intersection Sample(const Intersection &ref, const Point2f &xi,
-                               float *pdf) const;
+    virtual Intersection Sample(const Intersection &ref, const Point2f &xi, float *pdf) const;
 
     // Sample a point on the surface of the shape and return the PDF with
     // respect to area on the surface.

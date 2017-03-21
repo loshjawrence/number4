@@ -38,8 +38,8 @@ public:
     // Additionally invokes the f() of all BxDFs after using Sample_f to generate
     // a ray direction.
     // Refer to the .cpp file for a more detailed function description.
-    Color3f Sample_f(const Vector3f &woW, Vector3f *wiW, Point2f &xi,
-                     float *pdf, BxDFType type = BSDF_ALL,
+    Color3f Sample_f(const Vector3f &woW, Vector3f *wiW, const Point2f &xi,
+                     float r, float *pdf, BxDFType type = BSDF_ALL,
                      BxDFType *sampledType = nullptr) const;
 
     // Computes the average PDF of all BxDFs that match the given BxDFType

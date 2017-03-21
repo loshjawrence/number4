@@ -6,15 +6,6 @@ float SquarePlane::Area() const
     return transform.getScale().x * transform.getScale().y;
 }
 
-Intersection SquarePlane::Sample(const Point2f &xi, Float *pdf) const {
-    *pdf = 1.f / Area();
-    Intersection sample = Intersection();
-    sample.normalGeometric      = glm::normalize(transform.invTransT() * Normal3f(0,0,1));
-    glm::vec4 p                 = transform.T() * glm::vec4(xi.x - 0.5f, xi.y - 0.5f, 0.f, 1.f);
-    sample.point = Vector3f(p.x, p.y, p.z);
-    return sample;
-}
-
 bool SquarePlane::Intersect(const Ray &ray, Intersection *isect) const
 {
     //Transform the ray
@@ -35,12 +26,37 @@ bool SquarePlane::Intersect(const Ray &ray, Intersection *isect) const
 void SquarePlane::ComputeTBN(const Point3f &P, Normal3f *nor, Vector3f *tan, Vector3f *bit) const
 {
     *nor = glm::normalize(transform.invTransT() * Normal3f(0,0,1));
-    *tan = glm::normalize(transform.T3() * Vector3f(1,0,0));
-    *bit = glm::normalize(transform.T3() * Vector3f(0,1,0));
+    //TODO: Compute tangent and bitangent
+
+    glm::vec4 ta = transform.T() * glm::vec4(1,0,0,0);
+    *tan = glm::normalize(Vector3f(ta.x, ta.y, ta.z));
+
+    glm::vec4 bi = transform.T() * glm::vec4(0,1,0,0);
+    *bit = glm::normalize(Vector3f(bi.x, bi.y, bi.z));
+
+    //*bit = glm::normalize(glm::cross(*nor ,*tan));
 }
 
 
 Point2f SquarePlane::GetUVCoordinates(const Point3f &point) const
 {
     return Point2f(point.x + 0.5f, point.y + 0.5f);
+}
+
+Intersection SquarePlane::Sample(const Point2f &xi, Float *pdf) const
+{
+    Intersection inter;
+
+    //A SquarePlane is assumed to have a radius of 1 and a center of <0,0,0>.
+    Point2f pt = Point2f(xi.x -0.5f, xi.y -0.5f);
+
+    glm::vec4 WSP = transform.T() * glm::vec4(pt.x, pt.y, 0.0f,1.0f);
+
+    Point3f WorldSpacePoint = Point3f(WSP.x, WSP.y, WSP.z);
+
+    inter.point = WorldSpacePoint;
+    inter.normalGeometric = glm::normalize(transform.invTransT() * Normal3f(0,0,1));
+
+    *pdf = 1.0f / Area();
+    return inter;
 }

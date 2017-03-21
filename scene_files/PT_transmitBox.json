@@ -63,15 +63,107 @@
           }
         },
         {
+          "shape": "Sphere",
+          "name": "transmissive sphere",
+          "material": "transmissiveMaterial",
+          "transform": {
+            "translate": [ -3, 0, 0 ],
+            "rotate": [ 0, 0, 0 ],
+            "scale": [ 1, 1, 1 ]
+          }
+        },
+        {
           "shape" : "Sphere",
-          "name" : "transmissive sphere",
-          "material" : "transmissiveMaterial",
+          "name" : "transmissive sphere2",
+          "material" : "transmissiveMaterial2",
           "transform" : {
-            "translate" : [0, 1.25, 0],
+            "translate" : [-1, 0, 0],
             "rotate" : [0,0,0],
-            "scale" : [3, 3, 3]
+            "scale" : [1, 1, 1]
+          }
+        },
+        {
+          "shape" : "Sphere",
+          "name" : "transmissive sphere3",
+          "material" : "transmissiveMaterial3",
+          "transform" : {
+            "translate" : [1, 0, 0],
+            "rotate" : [0,0,0],
+            "scale" : [1, 1, 1]
+          }
+        },
+        {
+          "shape": "Sphere",
+          "name": "transmissive sphere4",
+          "material": "transmissiveMaterial4",
+          "transform": {
+            "translate": [ 3, 0, 0 ],
+            "rotate": [ 0, 0, 0 ],
+            "scale": [ 1, 1, 1 ]
+          }
+        },
+        {
+          "shape": "Sphere",
+          "name": "transmissive sphere5",
+          "material": "transmissiveMaterial5",
+          "transform": {
+            "translate": [ -2.0, 2, 0 ],
+            "rotate": [ 0, 0, 0 ],
+            "scale": [ 1, 1, 1 ]
           }
         }
+        ,
+        {
+          "shape" : "Sphere",
+          "name" : "transmissive sphere6",
+          "material" : "transmissiveMaterial6",
+          "transform" : {
+            "translate" : [0, 2, 0],
+            "rotate" : [0,0,0],
+            "scale" : [1, 1, 1]
+          }
+        },
+        {
+          "shape" : "Sphere",
+          "name" : "transmissive sphere7",
+          "material" : "transmissiveMaterial7",
+          "transform" : {
+            "translate" : [2, 2, 0],
+            "rotate" : [0,0,0],
+            "scale" : [1, 1, 1]
+          }
+        },
+        {
+          "shape": "Sphere",
+          "name": "transmissive sphere8",
+          "material": "transmissiveMaterial8",
+          "transform": {
+            "translate": [ -1, 4, 0 ],
+            "rotate": [ 0, 0, 0 ],
+            "scale": [ 1, 1, 1 ]
+          }
+        },
+        {
+          "shape" : "Sphere",
+          "name" : "transmissive sphere9",
+          "material" : "transmissiveMaterial9",
+          "transform" : {
+            "translate" : [1, 4, 0],
+            "rotate" : [0,0,0],
+            "scale" : [1, 1, 1]
+          }
+        },
+        {
+          "shape": "Sphere",
+          "name": "transmissive sphere10",
+          "material": "transmissiveMaterial10",
+          "transform": {
+            "translate": [ 0, 6, 0 ],
+            "rotate": [ 0, 0, 0 ],
+            "scale": [ 1, 1, 1 ]
+          }
+        }
+
       ],
       "lights" : [
         {
@@ -109,11 +201,78 @@
           "sigma": 0
         },
         {
-          "type": "TransmissiveMaterial",
+          "type": "MicrofacetTransmissiveMaterial",
           "name": "transmissiveMaterial",
-          "Kt": [0.7, 1, 0.7],
-          "eta": 1.3
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.05
         },
+        {
+          "type": "MicrofacetTransmissiveMaterial",
+          "name": "transmissiveMaterial2",
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.15
+        },
+        {
+          "type": "MicrofacetTransmissiveMaterial",
+          "name": "transmissiveMaterial3",
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.25
+        },
+        {
+          "type": "MicrofacetTransmissiveMaterial",
+          "name": "transmissiveMaterial4",
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.35
+        },
+
+        {
+          "type": "MicrofacetTransmissiveMaterial",
+          "name": "transmissiveMaterial5",
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.45
+        },
+        {
+          "type": "MicrofacetTransmissiveMaterial",
+          "name": "transmissiveMaterial6",
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.55
+        },
+        {
+          "type": "MicrofacetTransmissiveMaterial",
+          "name": "transmissiveMaterial7",
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.65
+        },
+        {
+          "type": "MicrofacetTransmissiveMaterial",
+          "name": "transmissiveMaterial8",
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.75
+        },
+
+        {
+          "type": "MicrofacetTransmissiveMaterial",
+          "name": "transmissiveMaterial9",
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.85
+        },
+        {
+          "type": "MicrofacetTransmissiveMaterial",
+          "name": "transmissiveMaterial10",
+          "Kt": [ 1, 1, 1 ],
+          "eta": 1.3,
+          "roughness": 0.95
+        },
+       
         {
           "type": "MatteMaterial",
           "name": "texturedMaterial",

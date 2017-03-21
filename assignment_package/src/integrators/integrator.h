@@ -32,7 +32,7 @@ public:
 
     // Evaluate the energy transmitted along the ray back to
     // its origin, e.g. the camera or an intersection in the scene
-    virtual Color3f Li(const Ray& ray, const Scene& scene, std::shared_ptr<Sampler> sampler, Color3f compounded_energy, int depth) const = 0;
+    virtual Color3f Li(const Ray& ray, const Scene& scene, std::shared_ptr<Sampler> sampler, int depth, Color3f compounded_energy) const = 0;
 
     // Clamp the upper end of our bounds to not go past the edge of the film.
     void ClampBounds();

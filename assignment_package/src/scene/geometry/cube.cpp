@@ -4,149 +4,7 @@
 float Cube::Area() const
 {
     //TODO
-    Vector3f scale = transform.getScale();
-    float xyfaces = 2 * scale.x * scale.y;
-    float xzfaces = 2 * scale.x * scale.z;
-    float yzfaces = 2 * scale.y * scale.z;
-    return xyfaces + xzfaces + yzfaces;
-//    return 6 * scale.x * scale.x; //assume uniform scaling
-}
-
-Intersection Cube::Sample(const Point2f &xi, Float *pdf) const {
-
-}
-
-Intersection Cube::Sample(const Intersection &ref, const Point2f &xi, Float *pdf) const {
-    Intersection sample = Intersection();
-
-    glm::vec4 p4_lcl = this->transform.invT() * glm::vec4(ref.point, 1.f);
-    glm::vec3 p_lcl = Point3f(p4_lcl.x, p4_lcl.y, p4_lcl.z);
-    Normal3f p = glm::normalize(glm::vec3(p4_lcl));
-
-    Vector3f scale = transform.getScale();
-    float xyface = scale.x * scale.y;
-    float xzface = scale.x * scale.z;
-    float yzface = scale.y * scale.z;
-
-    float see_xpos = glm::clamp( glm::dot( glm::normalize(p_lcl-Point3f(0.5,0,0)) ,Normal3f(1,0,0) ) ,0.f, 1.f);
-    float see_xneg = glm::clamp( glm::dot( glm::normalize(p_lcl-Point3f(-0.5,0,0)) ,Normal3f(-1,0,0) ) ,0.f, 1.f);
-    float see_ypos = glm::clamp( glm::dot( glm::normalize(p_lcl-Point3f(0,0.5,0)) ,Normal3f(0,1,0) ) ,0.f, 1.f);
-    float see_yneg = glm::clamp( glm::dot( glm::normalize(p_lcl-Point3f(0,-0.5,0)) ,Normal3f(0,-1,0) ) ,0.f, 1.f);
-    float see_zpos = glm::clamp( glm::dot( glm::normalize(p_lcl-Point3f(0,0,0.5f)) ,Normal3f(0,0,1) ) ,0.f, 1.f);
-    float see_zneg = glm::clamp( glm::dot( glm::normalize(p_lcl-Point3f(0,0,-0.5f)) ,Normal3f(0,0,-1) ) ,0.f, 1.f);
-
-    float xareaw = 0, yareaw = 0, zareaw = 0;
-    float thresh = 0.000f;
-    float seenarea = 0.f;
-    int32_t count = 0;
-    std::vector<Normal3f> myfaces(3);
-    std::vector<uint32_t> mask = {0,0,0};
-    Point3f p_abs = glm::abs(p);
-    float sum = 0, wx = 0, wy = 0, wz = 0;
-
-    //simplified dot product of p's view direction in local space with face normal
-    if(see_xpos > thresh) {
-        myfaces[0] = Normal3f(1,0,0);
-        mask[0] = 1;
-        seenarea += yzface;
-        xareaw = see_xpos * yzface;
-        sum += xareaw;
-        count++;
-    } else if(see_xneg > thresh) {
-        myfaces[0] = Normal3f(-1,0,0);
-        mask[0] = 1;
-        seenarea += yzface;
-        xareaw = see_xneg * yzface;
-        sum += xareaw;
-        count++;
-    }
-
-    if(see_ypos > thresh) {
-        myfaces[1] = Normal3f(0,1,0);
-        mask[1] = 1;
-        seenarea += xzface;
-        yareaw = see_ypos * xzface;
-        sum += yareaw;
-        count++;
-    } else if(see_yneg > thresh) {
-        myfaces[1] = Normal3f(0,-1,0);
-        mask[1] = 1;
-        seenarea += xzface;
-        yareaw = see_yneg * xzface;
-        sum += yareaw;
-        count++;
-    }
-
-    if(see_zpos > thresh) {
-        myfaces[2] = Normal3f(0,0,1);
-        mask[2] = 1;
-        seenarea += xyface;
-        zareaw = see_zpos * xyface;
-        sum += zareaw;
-        count++;
-    } else if(see_zneg > thresh) {
-        myfaces[2] = Normal3f(0,0,-1);
-        mask[2] = 1;
-        seenarea += xyface;
-        zareaw = see_zneg * xyface;
-        sum += zareaw;
-        count++;
-    }
-//    if (p_abs.x > 0) {
-//        myfaces[0] = Normal3f(glm::sign(p.x),0,0);
-//        mask[0] = 1;
-//        seenarea += yzface;
-//        sum += p_abs.x * yzface;
-//        count++;
-//    }
-//    if (p_abs.y > 0) {
-//        myfaces[1] = Normal3f(0,glm::sign(p.y),0);
-//        mask[1] = 1;
-//        seenarea += xzface;
-//        sum += p_abs.y * xzface;
-//        count++;
-//    }
-//    if (p_abs.z > 0) {
-//        myfaces[2] = Normal3f(0,0,glm::sign(p.z));
-//        mask[2] = 1;
-//        seenarea += xyface;
-//        sum += p_abs.z * xyface;
-//        count++;
-//    }
-
-    //weight our face selection by the proportion of the face we can see
-    wx = mask[0] * (xareaw / sum);
-    wy = mask[1] * (yareaw / sum);
-    wz = mask[2] * (zareaw / sum);
-
-    //assume zyface
-    uint32_t index = 0;
-    float temp = xi.x * count;
-    temp = glm::clamp( (temp - std::floor(temp)) - 0.0001f, 0.f, 1.f);
-    float randx = temp - (0.5f);
-    float randy = xi.y - (0.5f);
-
-    if(xi.x > wx && xi.x <= wx+wy) {//choose xzface
-        index = 1;
-    } else if (xi.x > wx+wy) {//choose xyface
-        index = 2;
-    }
-    Normal3f sn = myfaces[index];
-
-    if (glm::abs(sn.x) > 0) {
-        sample.point = Point3f(glm::sign(sn.x) * 0.5f, randy, randx);
-    } else if (glm::abs(sn.y) > 0) {
-        sample.point = Point3f(randx, glm::sign(sn.y) * 0.5, randy);
-    } else if (glm::abs(sn.z) > 0) {
-        sample.point = Point3f(randx, randy, glm::sign(sn.z) * 0.5);
-    }
-
-    sample.normalGeometric = glm::normalize(this->transform.invTransT() * sn);
-    glm::vec4 p4 = this->transform.T() * glm::vec4(sample.point,1.f);
-    sample.point = Point3f(p4.x, p4.y, p4.z);
-
-    *pdf = 1.f / sum;
-    return sample;
+    return (transform.getScale().x * transform.getScale().y + transform.getScale().y * transform.getScale().z + transform.getScale().x * transform.getScale().z) * 2.0f;
 }
 
 // Returns +/- [0, 2]
@@ -219,17 +77,50 @@ bool Cube::Intersect(const Ray& r, Intersection* isect) const
 
 void Cube::ComputeTBN(const Point3f& P, Normal3f* nor, Vector3f* tan, Vector3f* bit) const
 {
-    Normal3f modelnor = GetCubeNormal(P);
-    *nor = glm::normalize(transform.invTransT() * modelnor);
+    Normal3f localNormal = GetCubeNormal(P);
+    *nor = glm::normalize(transform.invTransT() * GetCubeNormal(P));
     //TODO: Compute tangent and bitangent
-    Vector3f modelbit(1.f,0.f,0.f);
-    if(modelnor.y == 0.f) {
-        modelbit.x = 0.f;
-        modelbit.y = 1.f;
+
+
+    // +x
+    if(localNormal.x == 1.0f)
+    {
+        *tan = Vector3f(0, 0, -1);
+        *bit = Vector3f(0, 1, 0);
+    }
+    // +z
+    else if(localNormal.z == 1)
+    {
+        *tan = Vector3f(1, 0, 0);
+        *bit = Vector3f(0, 1, 0);
+    }
+    else if(localNormal.x == -1)
+    {
+        *tan = Vector3f(0, 0, 1);
+        *bit = Vector3f(0, 1, 0);
+    }
+    else if(localNormal.z == -1)
+    {
+        *tan = Vector3f(-1, 0, 0);
+        *bit = Vector3f(0, 1, 0);
+    }
+    else if(localNormal.y == 1)
+    {
+        *tan = Vector3f(1, 0, 0);
+        *bit = Vector3f(0, 0, -1);
+    }
+    else if(localNormal.y == -1)
+    {
+        *tan = Vector3f(1, 0, 0);
+        *bit = Vector3f(0, 0, 1);
     }
 
-    *bit = glm::normalize(transform.T3() * modelbit );
-    *tan = glm::normalize(transform.T3() * glm::cross(modelbit,modelnor));
+    glm::vec4 ta = transform.T() * glm::vec4((*tan).r,(*tan).b,(*tan).g,0);
+    *tan = glm::normalize(Vector3f(ta.x, ta.y, ta.z));
+    //*tan = transform.invTransT() * (*tan);
+    *bit = glm::normalize(glm::cross(*nor ,*tan));
+
+
 }
 
 glm::vec2 Cube::GetUVCoordinates(const glm::vec3 &point) const
@@ -276,4 +167,158 @@ glm::vec2 Cube::GetUVCoordinates(const glm::vec3 &point) const
         }
     }
     return UV;
+}
+
+Intersection Cube::Sample(const Intersection &ref, const Point2f &xi, float *pdf) const
+{
+    Intersection inter;
+    //remapped
+    Point2f pt = Point2f(glm::fract(xi.x*3.2345f* xi.y)  -0.5f, xi.y -0.5f);
+
+    std::vector<std::pair<int, float>> faces;
+    // std::vector<int> _faces;
+
+    float maxDot = 0.0f;
+
+
+    //Z+
+    glm::vec4 ppt = transform.T() * glm::vec4( pt.x, pt.y, 0.5f, 1.0f);
+    if( glm::dot( glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(0,0,1))) < 0.0f )
+    {
+        maxDot = -glm::dot( glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(0,0,1)));
+        faces.push_back(std::pair<int, float>(0,maxDot));
+    }
+
+    //Z-
+    ppt = transform.T() * glm::vec4(pt.x,  pt.y, -0.5f, 1.0f);
+    if( glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(0,0,-1))) < 0.0f )
+    {
+        maxDot = -glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(0,0,-1)));
+        faces.push_back(std::pair<int, float>(1,maxDot));
+    }
+
+    //Y+
+    ppt = transform.T() * glm::vec4(pt.x, 0.5f, pt.y, 1.0f);
+    if( glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(0,1,0))) < 0.0f )
+    {
+        maxDot = -glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(0,1,0)));
+        faces.push_back(std::pair<int, float>(2,maxDot));
+    }
+
+    //Y-
+    ppt = transform.T() * glm::vec4( pt.x, -0.5f, pt.y, 1.0f);
+    if( glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(0,-1,0))) < 0.0f )
+    {
+        maxDot = -glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(0,-1,0)));
+        faces.push_back(std::pair<int, float>(3,maxDot));
+    }
+
+    //X+
+    ppt = transform.T() * glm::vec4( 0.5f, pt.x, pt.y, 1.0f);
+    if( glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(1,0,0))) < 0.0f )
+    {
+        maxDot = -glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(1,0,0)));
+         faces.push_back(std::pair<int, float>(4,maxDot));
+    }
+
+    //X-
+    ppt = transform.T() * glm::vec4( -0.5f, pt.x, pt.y, 1.0f);
+    if( glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(-1,0,0))) < 0.0f )
+    {
+        maxDot = -glm::dot(glm::normalize(Point3f(ppt.x, ppt.y, ppt.z) - ref.point), glm::normalize(transform.invTransT() * Normal3f(-1,0,0)));
+        faces.push_back(std::pair<int, float>(5,maxDot));
+    }
+
+
+    //Random Select one face
+    float totalDot = 0.0f;
+    float currentDot = 0.0f;
+    for(int i=0; i<faces.size(); i++)
+    {
+        std::pair<int, float> fuc2k = faces.at(i);
+
+        totalDot += fuc2k.second;
+    }
+
+    int chosenFace = -1;
+
+    for(int i=0; i<faces.size(); i++)
+    {
+         std::pair<int, float> fuc2k = faces.at(i);
+
+        currentDot += fuc2k.second/totalDot;
+        if(xi.x <= currentDot)
+        {
+            chosenFace = i;
+            break;
+        }
+    }
+
+     if(chosenFace < 0)
+     {
+      *pdf = 0;      
+      return inter;
+     }
+
+            glm::vec4 WSP;
+            Point3f WorldSpacePoint;
+
+            std::pair<int, float> tempPair = faces.at(chosenFace);
+                      //Z+
+
+            if(tempPair.first == 0)
+            {
+                WSP = transform.T() * glm::vec4(pt.x, pt.y, 0.5f,1.0f);
+                WorldSpacePoint = Point3f(WSP.x, WSP.y, WSP.z);
+                inter.normalGeometric = glm::normalize(transform.invTransT() * Normal3f(0,0,1));
+            }
+
+            //Z-
+            else if(tempPair.first == 1)
+            {
+                WSP = transform.T() * glm::vec4(pt.x, pt.y, -0.5f,1.0f);
+                WorldSpacePoint = Point3f(WSP.x, WSP.y, WSP.z);
+                inter.normalGeometric = glm::normalize(transform.invTransT() * Normal3f(0,0,-1));
+            }
+            //Y+
+            else if(tempPair.first == 2)
+            {
+                WSP = transform.T() * glm::vec4(pt.x, 0.5f, pt.y, 1.0f);
+                WorldSpacePoint = Point3f(WSP.x, WSP.y, WSP.z);
+                inter.normalGeometric = glm::normalize(transform.invTransT() * Normal3f(0,1,0));
+            }
+            //Y-
+            else if(tempPair.first == 3)
+            {
+                WSP = transform.T() * glm::vec4(pt.x, -0.5f, pt.y,1.0f);
+                WorldSpacePoint = Point3f(WSP.x, WSP.y, WSP.z);
+                inter.normalGeometric = glm::normalize(transform.invTransT() * Normal3f(0,-1,0));
+            }
+            //X+
+            else if(tempPair.first == 4)
+            {
+                WSP = transform.T() * glm::vec4(0.5f, pt.x, pt.y, 1.0f);
+                WorldSpacePoint = Point3f(WSP.x, WSP.y, WSP.z);
+                inter.normalGeometric = glm::normalize(transform.invTransT() * Normal3f(1,0,0));
+            }
+            //X-
+            else if(tempPair.first == 5)
+            {
+                WSP = transform.T() * glm::vec4(-0.5f, pt.x, pt.y, 1.0f);
+                WorldSpacePoint = Point3f(WSP.x, WSP.y, WSP.z);
+                inter.normalGeometric = glm::normalize(transform.invTransT() * Normal3f(-1,0,0));
+            }
+
+
+           inter.point = WorldSpacePoint;
+
+    *pdf = Area() * 1.5f * totalDot;
+    return inter;
+
+
+}
+
+Intersection Cube::Sample(const Point2f &xi, Float *pdf) const
+{
+    return Intersection();
 }

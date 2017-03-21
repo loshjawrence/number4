@@ -17,7 +17,6 @@ public:
 
     // Sample a point on the surface of the shape and return the PDF with
     // respect to area on the surface.
-//    virtual Intersection SampleShape(const Intersection &ref, const Point2f &xi, Float *pdf) const;
     virtual Intersection Sample(const Point2f &xi, Float *pdf) const;
 
     void create();

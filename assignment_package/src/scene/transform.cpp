@@ -23,6 +23,13 @@ void Transform::SetMatrices()
     inverse_transpose_worldTransform = glm::mat3(glm::inverse(glm::transpose(worldTransform)));
 }
 
+void Transform::SetWorldTransformMat(const glm::mat4 &m)
+{
+    worldTransform = m;
+    inverse_worldTransform = glm::inverse(worldTransform);
+    inverse_transpose_worldTransform = glm::mat3(glm::inverse(glm::transpose(worldTransform)));
+}
+
 const glm::mat4& Transform::T() const
 {
     return worldTransform;

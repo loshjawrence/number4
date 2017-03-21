@@ -1,6 +1,6 @@
 #include "fulllightingintegrator.h"
 
-Color3f FullLightingIntegrator::Li(const Ray &ray, const Scene &scene, std::shared_ptr<Sampler> sampler, Color3f compounded_energy, int depth) const
+Color3f FullLightingIntegrator::Li(const Ray &ray, const Scene &scene, std::shared_ptr<Sampler> sampler, int depth, Color3f compounded_energy) const
 {
     //TODO
     if(depth <= recursionLimit - 3) {
@@ -21,6 +21,8 @@ Color3f FullLightingIntegrator::Li(const Ray &ray, const Scene &scene, std::shar
 
     float DLpdf = 0.f;
     float naivepdf = 0.f;
+    float BxdfPdf_for_DL = 0;
+    Float DLPdf_for_naive = 0;
 
     Intersection isect = Intersection();
     if (scene.Intersect(ray,&isect)) {
@@ -43,12 +45,9 @@ Color3f FullLightingIntegrator::Li(const Ray &ray, const Scene &scene, std::shar
             uint32_t index = temp;
 
             Color3f sampledlightenergy = scene.lights[index]->Sample_Li(isect,xi,&wiW_DL,&DLpdf);
-            if (DLpdf == 0.f) {
-                return Color3f(0.f);
-            }
-
             DLpdf /= scene.lights.size();
-            sampledlightenergy /= DLpdf;
+
+//            sampledlightenergy /= DLpdf;
 
             Intersection closest = Intersection();
             Ray wiWray_DL = isect.SpawnRay(wiW_DL);
@@ -57,13 +56,13 @@ Color3f FullLightingIntegrator::Li(const Ray &ray, const Scene &scene, std::shar
             if(closest.objectHit == nullptr || closest.objectHit->areaLight != scene.lights.at(index)) {
                 sampledlightenergy = Color3f(0.f);
             }
-            Color3f bsdfresult_DL = isect.bsdf->f(woW,wiW_DL);
-            float absdot_DL = std::fabs(glm::dot(wiW_DL,isect.normalGeometric));
-
-            DLcolor = emittedlightenergy + bsdfresult_DL * sampledlightenergy * absdot_DL;
-            Float BxdfPdf_for_DL = isect.bsdf->Pdf(woW, wiW_DL);
-            float powerheuristic_DL = PowerHeuristic(1, DLpdf, 1, BxdfPdf_for_DL);
-            DLcolor *= powerheuristic_DL;
+            if (DLpdf > 0.f) {
+                Color3f bsdfresult_DL = isect.bsdf->f(woW,wiW_DL);
+                float absdot_DL = AbsDot(wiW_DL,isect.normalGeometric);
+                BxdfPdf_for_DL = isect.bsdf->Pdf(woW, wiW_DL);
+                float powerheuristic_DL = PowerHeuristic(1, DLpdf, 1, BxdfPdf_for_DL);
+                DLcolor = emittedlightenergy + (bsdfresult_DL * sampledlightenergy * absdot_DL * powerheuristic_DL)/DLpdf;
+            }
 
 
             /*----------------------------------------------------------------
@@ -71,37 +70,53 @@ Color3f FullLightingIntegrator::Li(const Ray &ray, const Scene &scene, std::shar
             * -----------------------------------------------------------------*/
             xi = sampler->Get2D();
             Vector3f wiW_naive(0.f);
-            Color3f bsdfresult_naive = isect.bsdf->Sample_f(woW,&wiW_naive,xi,&naivepdf);
-            compounded_energy *= bsdfresult_naive;
-            bsdfresult_naive /= naivepdf;
-            Ray wiWray_naive = isect.SpawnRay(wiW_naive);
-            float absdot_naive = std::fabs(glm::dot(wiW_naive,isect.normalGeometric));
-            Color3f recursLipath = Li(wiWray_naive,scene,sampler,compounded_energy,--depth);
+            float r = sampler->Get1D();
+            naivecolor = isect.bsdf->Sample_f(woW,&wiW_naive,xi,r,&naivepdf);
+            compounded_energy *= naivecolor;
+            if(naivepdf > 0) {
+                naivecolor /= naivepdf;
+            }
+            if(glm::length(naivecolor) > 0){
+                Ray wiWray = isect.SpawnRay(wiW_naive);
+                naivecolor *= AbsDot(wiW_naive,isect.normalGeometric);
+                Color3f recurseLi = Li(wiWray,scene,sampler,--depth,Color3f(0.f));
+                naivecolor *= recurseLi;
+            }
+//            Ray wiWray_naive = isect.SpawnRay(wiW_naive);
+//            float absdot_naive = std::fabs(glm::dot(wiW_naive,isect.normalGeometric));
+//            Color3f recursLipath = Li(wiWray_naive,scene,sampler,--depth,compounded_energy);
 
             //LTE
-            naivecolor = emittedlightenergy + bsdfresult_naive * recursLipath * absdot_naive;
-            Float DLPdf_for_naive = scene.lights[index]->Pdf_Li(isect,wiW_naive);
+//            naivecolor = emittedlightenergy + bsdfresult_naive * recursLipath * absdot_naive;
+            DLPdf_for_naive = scene.lights[index]->Pdf_Li(isect,wiW_naive);
             float powerheuristic_naive = PowerHeuristic(1, naivepdf, 1, DLPdf_for_naive);
             naivecolor *= powerheuristic_naive;
 
 
             finalcolor = DLcolor + naivecolor;
-        } else {
-            //no material attached to isect, color still 0
         }
+        return finalcolor;
     }
-
     return finalcolor;
 }
 
 float BalanceHeuristic(int nf, Float fPdf, int ng, Float gPdf)
 {
-    return (nf*fPdf) / (nf*fPdf + ng*gPdf);
+    float denominator = (nf*fPdf + ng*gPdf);
+    if(denominator < FLT_EPSILON) {
+        return 0.f;
+    }
+    return (nf*fPdf) / denominator;
 }
 
 float PowerHeuristic(int nf, Float fPdf, int ng, Float gPdf)
 {
     float f = nf * fPdf, g = ng * gPdf;
-    return (f*f) / (f*f + g*g);
+
+    float denominator = f*f + g*g;
+    if(denominator < FLT_EPSILON) {
+        return 0.f;
+    }
+    return (f*f) / (denominator);
 }
 

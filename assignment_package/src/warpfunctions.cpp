@@ -1,102 +1,117 @@
 #define _USE_MATH_DEFINES
 #include "warpfunctions.h"
 #include <math.h>
-#include <globals.h>
 
-glm::vec3 WarpFunctions::squareToDiskUniform(const glm::vec2 &sample)
+Point3f WarpFunctions::squareToDiskUniform(const Point2f &sample)
 {
-    float r = std::sqrt(sample.x);
-    float theta = 2.f * Pi * sample.y;
-    return glm::vec3(r * std::cos(theta), r * std::sin(theta), 0.f);
+    //TODO
+    float radius = sqrt(sample.x);
+        float phi = 2*M_PI * sample.y;
+        return glm::vec3(radius * cos(phi), radius * sin(phi), 0.0f);
 }
 
-glm::vec3 WarpFunctions::squareToDiskConcentric(const glm::vec2 &sample)
+Point3f WarpFunctions::squareToDiskConcentric(const Point2f &sample)
 {
-    //map uniform random numbers -1,1
-    glm::vec2 offset = 2.f * sample - glm::vec2(1.f,1.f);
+    //TODO
+    float phi, radius;
+        float a = 2*sample.x-1; // (a,b) is now on [-1,1]ˆ2
+        float b = 2*sample.y-1;
 
-    //handle degeneracy at the origin
-    if(offset.x == 0.f && offset.y == 0.f) {
-        return glm::vec3(0.f,0.f,0.f);
-    }
+        if (a > -b) // region 1 or 2
+        {
+            if (a > b) // region 1, also |a| > |b|
+            {
+                radius = a;
+                phi = (M_PI/4 ) * (b/a);
+            }
+            else // region 2, also |b| > |a|
+            {
+                radius = b;
+                phi = (M_PI/4) * (2 - (a/b));
+            }
+        }
+        else // region 3 or 4
+        {
+            if (a < b) // region 3, also |a| >= |b|, a != 0
+            {
+                radius = -a;
+                phi = (M_PI/4) * (4 + (b/a));
+            }
+            else // region 4, |b| >= |a|, but a==0 and b==0 could occur.
+            {
+                radius = -b;
+                if (b != 0)
+                    phi = (M_PI/4) * (6 - (a/b));
+                else
+                    phi = 0;
+            }
+        }
 
-    float theta, r;
-    if(std::fabs(offset.x) > std::fabs(offset.y)) {
-        r = offset.x;
-        theta = (Pi / 4.f) * (offset.y/offset.x);
-    } else {
-        r = offset.y;
-        theta = (Pi / 2.f) - (Pi / 4.f) * (offset.x/offset.y);
-    }
 
-    return r * glm::vec3(std::cos(theta), std::sin(theta), 0.f);
+        return glm::vec3(radius * cos(phi), radius * sin(phi), 0.0f);
 }
 
-float WarpFunctions::squareToDiskPDF(const glm::vec3 &sample)
+float WarpFunctions::squareToDiskPDF(const Point3f &sample)
 {
+    //TODO
     return InvPi;
 }
 
-glm::vec3 WarpFunctions::squareToSphereUniform(const glm::vec2 &sample)
+Point3f WarpFunctions::squareToSphereUniform(const Point2f &sample)
 {
-    //maps x to value between 1 and -1
-    float z = 1.f - 2.f * sample.x;
-    float r = std::sqrt(std::max(0.f, 1.f - z * z));
-    float phi = 2.f * Pi * sample.y;
-    return glm::vec3(r * std::cos(phi), r * std::sin(phi), z);
+    //TODO
+    float z =  1 - 2*sample.x;
+        return glm::vec3(sqrt(1 - z*z) *cos(2*M_PI * sample.y), sqrt(1 - z*z)*sin(2*M_PI * sample.y), z);
 }
 
-float WarpFunctions::squareToSphereUniformPDF(const glm::vec3 &sample)
+float WarpFunctions::squareToSphereUniformPDF(const Point3f &sample)
 {
+    //TODO
     return Inv4Pi;
 }
 
-glm::vec3 WarpFunctions::squareToSphereCapUniform(const glm::vec2 &sample, float thetaMin)
+Point3f WarpFunctions::squareToSphereCapUniform(const Point2f &sample, float thetaMin)
 {
-    //costhetamin is our min z, max z is 1
-    float thetaMax = glm::radians(180.f - thetaMin);
-    float zmin = std::cos(thetaMax);
-    float zmax = 1.f;
-    //
-    float z = zmax - (zmax - zmin) * sample.x;
-    float r = std::sqrt(std::max(0.f, 1.f - z * z));
-    float phi = 2.f * Pi * sample.y;
-    return glm::vec3(r * std::cos(phi), r * std::sin(phi), z);
+    //TODO
+    thetaMin = glm::radians(180.f - thetaMin);
+    float z = 1.f - (1.f - std::cos(thetaMin)) * sample.x;
+    return glm::vec3(sqrt(1 - z*z) *cos(2*M_PI * sample.y), sqrt(1 - z*z)*sin(2*M_PI * sample.y), z);
 }
 
-float WarpFunctions::squareToSphereCapUniformPDF(const glm::vec3 &sample, float thetaMin)
+float WarpFunctions::squareToSphereCapUniformPDF(const Point3f &sample, float thetaMin)
 {
-    //integrating over full Surface of sphere 1/A = 1/4PIr*r = 1/4PI
-    //so subtract off surface area that we are not including theta min
-    thetaMin = glm::radians(thetaMin);
-    float theta_integral = 1.f - std::cos(Pi - thetaMin);
-    float phi_integral = 2.f * Pi;
-    return 1.f / (phi_integral * theta_integral);
-
+    //TODO
+    return Inv2Pi  * (1.0f / (1.0f - cos(glm::radians(180 - thetaMin))));
 }
 
-glm::vec3 WarpFunctions::squareToHemisphereUniform(const glm::vec2 &sample)
+Point3f WarpFunctions::squareToHemisphereUniform(const Point2f &sample)
 {
-    float z = sample.x;
-    float r = std::sqrt(std::max(0.f, 1.f - z * z));
-    float phi = 2 * Pi * sample.y;
-    return glm::vec3(r * std::cos(phi), r * std::sin(phi), z);
+    //TODO
+    float z =  sample.x;
+        return glm::vec3(sqrt(1 - z*z) *cos(2*M_PI * sample.y), sqrt(1 - z*z)*sin(2*M_PI * sample.y), z);
 }
 
-float WarpFunctions::squareToHemisphereUniformPDF(const glm::vec3 &sample)
+float WarpFunctions::squareToHemisphereUniformPDF(const Point3f &sample)
 {
+    //TODO
     return Inv2Pi;
 }
 
-glm::vec3 WarpFunctions::squareToHemisphereCosine(const glm::vec2 &sample)
+Point3f WarpFunctions::squareToHemisphereCosine(const Point2f &sample)
 {
-    glm::vec3 d = WarpFunctions::squareToDiskConcentric(sample);
-    float z = std::sqrt(std::max(0.f, 1.f - d.x * d.x - d.y * d.y));
-    return glm::vec3(d.x, d.y, z);
+    //TODO
+    glm::vec3 disk = squareToDiskConcentric(sample);
+        float x = disk.x;
+        float y = disk.y;
+        float z = sqrt(1 - x*x - y*y);
+
+        return glm::vec3(x, y, z);
 }
 
-float WarpFunctions::squareToHemisphereCosinePDF(const glm::vec3 &sample)
+float WarpFunctions::squareToHemisphereCosinePDF(const Point3f &sample)
 {
-    float cosTheta = glm::dot(sample,glm::vec3(0.f,0.f,1.f));
-    return cosTheta * InvPi;
+    //TODO
+    float cosTheta = glm::dot(sample, glm::vec3(0,0,1));
+
+       return InvPi * cosTheta;
 }

@@ -1,7 +1,8 @@
 #include "shape.h"
 #include <QDateTime>
-#include "Sphere.h"
+
 pcg32 Shape::colorRNG = pcg32(QDateTime::currentMSecsSinceEpoch());
+
 
 void Shape::InitializeIntersection(Intersection *isect, float t, Point3f pLocal) const
 {
@@ -14,25 +15,18 @@ void Shape::InitializeIntersection(Intersection *isect, float t, Point3f pLocal)
 Intersection Shape::Sample(const Intersection &ref, const Point2f &xi, float *pdf) const
 {
     //TODO
-    Intersection sample = this->Sample(xi, pdf);
+    Intersection inters = Sample(xi, pdf);
 
-//    const Sphere* this_shape = dynamic_cast<const Sphere*>(this);
+    //Converet light sample weight to solid angle measure
+    Vector3f LightVec = glm::normalize(inters.point - ref.point);
 
-//    if(this_shape != nullptr) {
-//        return sample;
-//    } else {
-        Vector3f wi = glm::normalize( sample.point - ref.point );
+    float InvArea = *pdf;
 
-        float coslight = glm::abs( glm::dot(sample.normalGeometric, -wi));
+    float NoL = glm::abs(glm::dot(inters.normalGeometric, -LightVec));
 
-        float denominator = coslight * (1.f/(*pdf));
+    //Exception Handling
+    if(NoL != 0.0f)
+        *pdf = glm::distance2(ref.point, inters.point) * InvArea / NoL;
 
-        if(denominator != 0.f) {
-            *pdf = glm::distance2(ref.point, sample.point) / denominator;
-        } else {
-            *pdf = 0.f;
-        }
-
-        return sample;
-//    }
+    return inters;
 }

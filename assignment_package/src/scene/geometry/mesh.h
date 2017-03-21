@@ -2,6 +2,7 @@
 
 #include "shape.h"
 #include <QList>
+#include "cube.h"
 
 class Triangle : public Shape
 {
@@ -21,7 +22,6 @@ public:
 
     // Sample a point on the surface of the shape and return the PDF with
     // respect to area on the surface.
-//    virtual Intersection SampleShape(const Intersection &ref, const Point2f &xi, Float *pdf) const;
     virtual Intersection Sample(const Point2f &xi, Float *pdf) const;
 
     Point3f points[3];
@@ -49,16 +49,40 @@ public:
 
     // Sample a point on the surface of the shape and return the PDF with
     // respect to area on the surface.
-//    virtual Intersection SampleShape(const Intersection &ref, const Point2f &xi, Float *pdf) const;
-    virtual Intersection Sample(const Intersection &ref, const Point2f &xi, Float *pdf) const;
     virtual Intersection Sample(const Point2f &xi, Float *pdf) const;
 
     void create();
 
     void LoadOBJ(const QStringRef &filename, const QStringRef &local_path);
 
+
+    glm::vec3 XMVectorMin(const glm::vec3 &V1, const glm::vec3 &V2)
+    {
+        glm::vec3 Result;
+
+        Result.x = (V1.x < V2.x) ? V1.x : V2.x;
+        Result.y = (V1.y < V2.y) ? V1.y : V2.y;
+        Result.z = (V1.z < V2.z) ? V1.z : V2.z;
+
+        return Result;
+    }
+
+    glm::vec3 XMVectorMax(const glm::vec3 &V1, const glm::vec3 &V2)
+    {
+        glm::vec3 Result;
+
+        Result.x = (V1.x > V2.x) ? V1.x : V2.x;
+        Result.y = (V1.y > V2.y) ? V1.y : V2.y;
+        Result.z = (V1.z > V2.z) ? V1.z : V2.z;
+
+        return Result;
+    }
+
 private:
-    QList<Triangle*> faces;
+    QList<Triangle*> faces;    
+    glm::vec3 BoundingBoxCenter;
+    glm::vec3 BoundingBoxExtents;
+    Cube BoundingBox;
 };
 
 

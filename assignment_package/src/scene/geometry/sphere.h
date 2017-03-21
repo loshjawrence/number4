@@ -22,6 +22,5 @@ public:
     virtual Intersection Sample(const Intersection &ref, const Point2f &xi,
                                 float *pdf) const;
 
-//    virtual Intersection SampleShape(const Intersection &ref, const Point2f &xi, Float *pdf) const;
     void create();
 };

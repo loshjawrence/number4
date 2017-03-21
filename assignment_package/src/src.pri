@@ -41,7 +41,6 @@ SOURCES += \
     $$PWD/scene/materials/glassmaterial.cpp \
     $$PWD/scene/materials/transmissivematerial.cpp \
     $$PWD/scene/materials/specularbtdf.cpp \
-#    $$PWD/scene/materials/warpfunctions.cpp \
     $$PWD/integrators/fulllightingintegrator.cpp \
     $$PWD/scene/materials/microfacet.cpp \
     $$PWD/scene/materials/microfacetbrdf.cpp \
@@ -88,7 +87,6 @@ HEADERS += \
     $$PWD/scene/materials/glassmaterial.h \
     $$PWD/scene/materials/transmissivematerial.h \
     $$PWD/scene/materials/specularbtdf.h \
-#    $$PWD/scene/materials/warpfunctions.h \
     $$PWD/integrators/fulllightingintegrator.h \
     $$PWD/scene/materials/microfacet.h \
     $$PWD/scene/materials/microfacetbrdf.h \

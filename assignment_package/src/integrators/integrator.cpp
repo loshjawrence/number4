@@ -14,9 +14,8 @@ void Integrator::Render()
     for(Point2i pixel : tilePixels)
     {
         ///Uncomment this to debug a particular pixel within this tile
-        //200,150 top black  200, 310 bottom light
-        //directlighting: 200,100(backwall) 250,270 (top right box), 200,375 (lit floor)
-//        if(pixel.x == 295 && pixel.y == 384)
+        /// naive 380 270
+//        if(pixel.x == 380 && pixel.y == 270)
 //        {
 //            int ohboy = 1;
 //        } else {
@@ -32,7 +31,7 @@ void Integrator::Render()
             Ray ray = camera->Raycast(sample);
             // Get the L (energy) for the ray by calling Li(ray, scene, tileSampler, arena)
             // Li is implemented by Integrator subclasses, like DirectLightingIntegrator
-            Color3f L = Li(ray, *scene, sampler, Color3f(1.f),recursionLimit);
+            Color3f L = Li(ray, *scene, sampler, recursionLimit, Color3f(1.f));
             // Accumulate color in the pixel
             pixelColor += L;
         }
